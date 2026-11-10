@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cafe 17 — Ravipuram, Kochi
 
-## Getting Started
-
-First, run the development server:
+Website for Cafe 17, built with Next.js 16 (App Router, TypeScript), Tailwind CSS v4, Framer Motion and Lenis.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build && npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Before going live
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Set the domain before building.** Add `NEXT_PUBLIC_SITE_URL=https://your-domain` to your hosting environment so it's present when `npm run build` runs, because the page is prerendered. It drives the canonical URL, Open Graph URLs, sitemap, robots.txt and JSON-LD. On Vercel it falls back to the production URL automatically.
+2. **Check the details** in `src/data/site.ts`: phone numbers, hours, and the Swiggy, Zomato and BOWLR links. Online listings disagree on hours, so confirm them.
+3. **Add prices** (optional) in `src/data/menu.ts`. Give any item a `price: 450` and it appears on the site and in the Google menu markup.
+4. **Swap in your own photos.** `public/images/hero/*` (the hero slideshow) and `public/images/menu/*` are licensed stock placeholders (Unsplash). `public/images/feed/*` are Cafe 17's own Instagram photos at small size. Replace any of them with full-resolution shots under the same file names. The hero slides and their "Now serving" captions are listed in `HERO_SLIDES` in `src/components/sections/Hero.tsx`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things live
 
-## Learn More
+| What | File |
+| --- | --- |
+| Address, phone, hours, links | `src/data/site.ts` |
+| Menu (categories, dishes, tags, veg markers) | `src/data/menu.ts` |
+| Reviews and FAQ | `src/data/content.ts` |
+| Logo (vector) | `src/components/brand/Logo.tsx` |
+| SEO keywords and structured data | `src/lib/seo.ts`, `src/app/layout.tsx` |
+| Sections | `src/components/sections/*` |
+| Live map (MapLibre + OpenFreeMap tiles, no API key) | `src/components/sections/LiveMap.tsx` |
+| 3D photo ring ("The Space") | `src/components/sections/Space.tsx` |
 
-To learn more about Next.js, take a look at the following resources:
+## Performance notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Smooth scrolling (Lenis) runs only for mouse and trackpad users. Touch devices keep native scrolling.
+- Looping animations run on GPU layers (transform and opacity only), so phones don't repaint on every frame.
+- Scroll effects run on phones and tablets too: the hero zooms through the pin, the signature dishes scroll sideways, the 3D ring rotates, and the Polaroids fly in. The marquees react to scroll speed.
+- The 3D ring gives each panel its own transform instead of relying on `preserve-3d`, so it renders the same in Safari.
+- The map library loads only when you scroll near it. The camera fly-in and orbit pause when the map is off-screen, and the orbit is skipped on low-memory phones.
+- `prefers-reduced-motion` is respected everywhere.
